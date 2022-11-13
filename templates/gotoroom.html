@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chats</title>
+    <style>
+        div.fixed {
+            position: fixed;
+            border: 3px solid black;
+            bottom: 10px;
+            background: yellow;
+        }
+    </style>
+</head>
+<body>
+        <form name="chats" method="post" action="{% url 'sendchat' %}">
+            {% csrf_token %}
+            <input type="hidden" name="idd" value="{{res.id}}">
+            <center><h1>{{res.room_name}}</h1></center><br><br>
+            <table>
+                {% for r in ress %}
+                {% if r.tid.id != pid %}<tr align="left"><td><a href="{% url 'insta' id=r.tid.id %}">{{r.tid.user}}:</a> {{r.chat}}</td> {% else %} <tr align="right"><td>{{r.chat}}</td>{% endif %}
+                </tr>
+                {% endfor %}
+            </table><br><br>
+            <div class="fixed"><textarea cols="100" rows="1" name="chat"></textarea> <input type="submit" value="Send"></div>
+        </form>
+</body>
+</html>

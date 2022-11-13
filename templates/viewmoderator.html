@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Moderator</title>
+</head>
+<body>
+    <center><h1>View Moderator</h1></center><br><br>
+        <table border="1">
+            <tr>
+                <th>Name of Moderator</th>
+                <th>Name of Chatroom</th>
+            </tr>
+            {% for r in res %}
+                <tr>
+                    <td>{{r.moderator}}</td>
+                    <td>{{r.gid.room_name}}</td>
+                </tr>
+            {% endfor %}
+        </table>
+</body>
+</html>

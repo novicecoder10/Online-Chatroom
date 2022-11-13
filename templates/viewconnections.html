@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Connections</title>
+</head>
+<body>
+    <center><h1>View Connections</h1></center><br>
+    <table border="1">
+        <tr>
+            <th>Name</th>
+            <th>Connection</th>
+        </tr>
+        {% for r in  res %}
+        <tr>
+            <td>{{r.userid.pid.name}}</td>
+            <td>{{r.type}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+</head>
+<body>
+    <form name="prof" method="post" action="prof" enctype="multipart/form-data">
+        {% csrf_token %}
+        <center><h1>User Profile</h1></center><br><br>
+<table>
+    <tr>
+        <td>Profile Picture</td>
+        <td><input type="file" name="image"></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Nickname</td>
+        <td><input type="text" name="usn" id="usn"></td>
+        <td><p id="message"></p></td>
+    </tr>
+    <tr>
+        <td>Bio</td>
+        <td><textarea name="bio"></textarea></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>Status</td>
+        <td><select name="status">
+            <option selected value="Online">Online</option>
+            <option value="Offline">Offline</option>
+            <option value="Busy">Busy</option>
+            <option value="Away">Away</option>
+        </select></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>About</td>
+        <td><textarea name="about"></textarea></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><input type="submit" value="Save"></td>
+        <td><input type="reset"></td>
+        <td></td>
+    </tr>
+</table>
+    </form>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script type="text/javascript">
+        $("#usn").keyup(function(){
+            var uname;
+
+            uname = $(this).val();
+
+            $.ajax(
+            {
+                type: "GET",
+                url: "/usnachk",
+                data: {
+                    usid: uname,
+                },
+                success: function( data )
+                {
+                    if(data.is_taken)
+                    {
+                        $( '#message' ).text("data.error_message");
+                    }
+                    else
+                    {
+                        $( '#message' ).text("");
+                    }
+                }
+            })
+        });
+    </script>
+</body>
+</html>

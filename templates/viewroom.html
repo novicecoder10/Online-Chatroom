@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Rooms</title>
+</head>
+<body>
+  <table border="1">
+      <tr>
+          <th>Name of Room</th>
+          <th>Description</th>
+          <th>Admin</th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
+      </tr>
+      {% for r in res %}
+      <tr>
+          <td>{{r.room_name}}</td>
+          <td>{{r.description}}</td>
+          <td>{{r.room_creator.user}}</td>
+          <td><a href="{% url 'gotocm' id=r.id %}">Chat</a></td>
+          <td><a href="{% url 'gotoam' id=r.id %}">Add Members</a></td>
+          <td><a href="{% url 'gotorm' id=r.id %}">View Members</a></td>
+          <td><a href="{% url 'ditroom' id=r.id %}">Edit Room</a></td>
+          <td><a href="{% url 'delroom' id=r.id %}">Delete Room</a></td>
+      </tr>
+      {% endfor %}
+  </table>
+</body>
+</html>

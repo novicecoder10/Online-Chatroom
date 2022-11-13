@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Feedback</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            window.location.hash="#yolo";
+        });
+    </script>
+</head>
+<body>
+<form name="fed" method="post" action="feed">
+    {% csrf_token %}
+    <center><h1>Feedback</h1></center><br><br>
+    Feedback <input type="text" name="feed" id="yolo"><br><br>
+    <input type="submit">
+</form>
+</body>
+</html>

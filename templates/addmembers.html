@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Members</title>
+</head>
+<body>
+  <form name="add" method="post" action="{% url 'addmembers' %}">
+    {% csrf_token %}
+      <center><h1>Add Members</h1></center><br><br>
+      <input type="hidden" value="{{ress.id}}" name="idd">
+        <table border="1">
+            <tr>
+                <th>Name</th>
+                <th></th>
+            </tr>
+            {% for r in res %}
+                <tr>
+                    <td>{{r.name}}</td>
+                    <td><input type="checkbox" value="{{r.id}}" name="member"></td>
+                </tr>
+            {% endfor %}
+        </table>
+      <input type="submit" value="add">
+  </form>
+</body>
+</html>

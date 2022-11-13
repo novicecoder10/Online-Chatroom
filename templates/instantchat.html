@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Instant Chat</title>
+    <style>
+        div.fixed {
+            position: fixed;
+            border: 3px solid black;
+            bottom: 10px;
+            background: yellow;
+        }
+
+    </style>
+</head>
+<body>
+<form name="inst" method="post" action="{% url 'instachat' %}">
+    {% csrf_token %}
+    <center><h1>Private chat</h1></center><br><br>
+    <input type="hidden" name="idd" value="{{res.id}}">
+    <table>
+        {% for r in ress %}
+        <tr>
+            <td>{{r.regid.name}}: {{r.chat}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+<div class="fixed"><textarea cols="100" rows="1" name="chat"></textarea><input type="submit" value="Send"></div>
+</form>
+</body>
+</html>

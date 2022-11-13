@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Room</title>
+</head>
+<body>
+<form name="edit" method="post" action="{% url 'editroom' %}">
+        {% csrf_token %}
+        <center><h1>Edit Room</h1></center><br><br>
+        <table>
+            <tr>
+                <td>Room Name</td>
+                <td><input type="text" name="rname" id="rname" value="{{res.room_name}}" required></td>
+                <td><p id="msg"></p></td>
+            </tr>
+            <tr>
+                <td>Room Description</td>
+                <td><textarea name="descrip">{{res.description}}</textarea></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><input type="submit"></td>
+                <td><input type="reset"></td>
+                <td></td>
+            </tr>
+        </table>
+    </form>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script type="text/javascript">
+        $("#rname").keyup(function(){
+
+            var room;
+
+            room = $(this).val();
+
+            $.ajax(
+            {
+                type: "GET",
+                url: "/roomcheck",
+                data: {
+                    name: room,
+                },
+                success: function( data ){
+                    if(data.is_taken)
+                    {
+                        $( "#msg" ).text(data.error_message);
+                    }
+                    else
+                    {
+                        $( "#msg" ).text("");
+                    }
+                }
+            })
+        });
+    </script>
+</body>
+</html>

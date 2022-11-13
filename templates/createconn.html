@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Connections</title>
+</head>
+<body>
+    <form name="con" method="post" action="{% url 'createcon' %}">
+        {% csrf_token %}
+        <center><h1>Create Connections</h1></center><br><br>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Connection</th>
+                <th></th>
+                <th></th>
+            </tr>
+            {% for r in res %}
+            <tr>
+                <td>{{r.pid.name}}</td>
+                <td><select name="conn" id="conn" required>
+                    <option value="Family" name="Family">Family</option>
+                    <option value="Friend" name="Friend">Friend</option>
+                    <option value="Work" name="Work">Work</option>
+                </select></td>
+                <td><input type="hidden" value="{{r.id}}" name="connect" id="connect"></td>
+            </tr>
+            {% endfor %}
+            <td><input type="submit" value="Add"></td>
+        </table>
+    </form>
+</body>
+</html>

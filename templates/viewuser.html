@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Users</title>
+</head>
+<body>
+    <center><h1>View Users</h1></center><br><br>
+    <table border="1">
+        <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th></th>
+        </tr>
+        {% for r in res %}
+            <tr>
+                <td>{{r.name}}</td>
+                <td>{{r.phone}}</td>
+                <td>{{r.email}}</td>
+                <td><a href="{% url 'deluser' id=r.lid.id %}">Delete</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

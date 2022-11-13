@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Members</title>
+</head>
+<body>
+    <center><h1>View Members</h1></center><br><br>
+    <form name="remove" method="post" action="{% url 'delmembers' %}">
+        {% csrf_token %}
+    <input type="hidden" name="idd" value="{{ress.id}}">
+    <table border="1">
+        <tr>
+            <th>Name</th>
+            <th>Remove</th>
+        </tr>
+        {% for r in res %}
+        <tr>
+            <td>{{r.usid.name}}</td>
+            <td><input name="del" type="checkbox" value="{{r.usid.id}}"></td>
+        </tr>
+        {% endfor %}
+    </table><br><br>
+    <input type="submit" value="Remove">
+    </form>
+</body>
+</html>

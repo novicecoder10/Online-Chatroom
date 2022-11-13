@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View User Profile</title>
+</head>
+<body>
+<center><h1>User Profile</h1></center><br><br>
+    <table>
+        <tr>
+            <td>Profile Picture</td>
+            <td><img src="{{res.image.url}}" width="200" height="200"></td>
+        </tr>
+        <tr>
+            <td>Nickname</td>
+            <td><input readonly type="text" value="{{res.user}}"></td>
+        </tr>
+        <tr>
+            <td>Status</td>
+            <td><input readonly type="text" value="{{res.status}}"></td>
+        </tr>
+        <tr>
+            <td>Bio</td>
+            <td><textarea readonly>{{res.bio}}</textarea></td>
+        </tr>
+        <tr>
+            <td>About</td>
+            <td><textarea readonly>{{res.about}}</textarea></td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <center><h1>Feedback</h1></center><br><br>
+        <table border="1">
+            <tr>
+                <th>Name</th>
+                <th>Feedback</th>
+            </tr>
+            {% for r in res %}
+                <tr>
+                    <td>{{r.uid.name}}</td>
+                    <td>{{r.feed}}</td>
+                </tr>
+            {% endfor %}
+        </table>
+</body>
+</html>
