@@ -1,30 +1,630 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatterBox Web</title>
+    <link rel="stylesheet" href="{% static 'css/whatsapp.css' %}">
+    <!-- FontAwesome for standard icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-    <center><h1>User Home</h1></center><br><br>
-        <table>
-            <tr>
-                <td><a href="gotovp">View Profile</a></td>
-                <td><a href="ditprof">Edit Profile</a></td>
-                <td><a href="gotocrrm">Create Room</a></td>
-            </tr>
-            <tr>
-                <td><a href="goto">Create Connections</a></td>
-                <td><a href="https://buy.stripe.com/test_fZe0217Nl5D57KM000">Make payment(Donation/Charity)</a></td>
-                <td><a href="viewroom">View Rooms</a></td>
-            </tr>
-            <tr>
-                <td><a href="gotoprof">Create Profile</a></td>
-                <td><a href="gotofeedbk">Feedback</a></td>
-                <td><a href="/">Logout</a></td>
-            </tr>
-            <tr>
-                <td><a href="viewconn">View Connections</a></td>
-            </tr>
-        </table>
+<body class="dark">
+    <div class="app-container">
+        
+        <!-- LEFT SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-profile-section">
+                    <div class="chat-header-avatar" style="width: 38px; height: 38px;">👤</div>
+                    <span class="user-name">ChatterBox User</span>
+                </div>
+                <div class="sidebar-actions">
+                    <!-- Action Buttons -->
+                    <button class="action-icon" onclick="openModal('Create Room', '/gotocrrm')" title="Create Room">
+                        <i class="fa-solid fa-circle-plus"></i>
+                    </button>
+                    <button class="action-icon" onclick="openModal('Add Connections', '/goto')" title="Add Connections">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </button>
+                    <button class="action-icon" onclick="openModal('Feedback', '/gotofeedbk')" title="Send Feedback">
+                        <i class="fa-solid fa-comment-medical"></i>
+                    </button>
+                    <a href="https://buy.stripe.com/test_fZe0217Nl5D57KM000" target="_blank" class="action-icon" title="Support ChatterBox (Stripe)" style="color: #ffb703;">
+                        <i class="fa-solid fa-heart"></i>
+                    </a>
+                    <button class="action-icon" id="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                        <i class="fa-solid fa-sun" id="theme-icon"></i>
+                    </button>
+                    <a href="{% url 'log' %}" class="action-icon" title="Log Out" style="color: #ff4b4b;">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Quick Link Buttons for Profile/Connections view -->
+            <div style="display: flex; gap: 5px; padding: 10px; background: var(--sidebar-bg); border-bottom: 1px solid var(--border-color);">
+                <button class="btn-secondary" style="font-size: 0.8rem; padding: 6px;" onclick="openModal('My Profile', '/gotovp')">View Profile</button>
+                <button class="btn-secondary" style="font-size: 0.8rem; padding: 6px;" onclick="openModal('Edit Profile', '/ditprof')">Edit Profile</button>
+                <button class="btn-secondary" style="font-size: 0.8rem; padding: 6px;" onclick="openModal('Connections', '/viewconn')">View Connections</button>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass" style="color: var(--text-secondary); font-size: 0.85rem;"></i>
+                    <input class="search-input" type="text" id="search-bar" onkeyup="filterChats()" placeholder="Search or start new chat">
+                </div>
+            </div>
+            
+            <!-- Chat Lists (Rooms & Connections) -->
+            <div class="chat-list-container">
+                <!-- Group Rooms Section -->
+                <div class="list-section-header">Group Rooms</div>
+                <div id="rooms-list">
+                    <div style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 0.9rem;">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Loading rooms...
+                    </div>
+                </div>
+                
+                <!-- Connections Section -->
+                <div class="list-section-header" style="margin-top: 15px;">Private Connections</div>
+                <div id="connections-list">
+                    <div style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 0.9rem;">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Loading connections...
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- RIGHT CHAT PANEL -->
+        <div class="main-chat-panel" id="chat-panel">
+            <!-- Welcome Screen (Default) -->
+            <div class="welcome-screen">
+                <div class="welcome-icon">💬</div>
+                <h1 class="welcome-title">ChatterBox Web</h1>
+                <p class="welcome-text">
+                    Select a group room or click a private connection to start chatting in real-time. Switch between light and dark themes using the sun icon.
+                </p>
+                <div style="margin-top: 30px; display: flex; gap: 15px;">
+                    <button class="btn-secondary" onclick="openModal('Create Room', '/gotocrrm')" style="width: auto;">Create Group Room</button>
+                    <a href="https://buy.stripe.com/test_fZe0217Nl5D57KM000" target="_blank" class="btn-primary" style="width: auto; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-heart"></i> Donate & Support
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- MODAL OVERLAY WRAPPER FOR IFRAMES -->
+    <div id="actionModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle" class="modal-title">Action Title</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <iframe id="modalIframe" class="modal-iframe" src=""></iframe>
+        </div>
+    </div>
+
+    <!-- --- JAVASCRIPT LOGIC --- -->
+    <script type="text/javascript">
+        // SVG Custom Stickers Database
+        const STICKERS = {
+            python: `<svg viewBox="0 0 110 110" class="message-sticker"><path fill="#3776AB" d="M55 2c-14.8 0-13.8 6.4-13.8 6.4l.1 6.6c0 0-1 12.1 13.7 12.1 14.8 0 19.8-1 19.8-1s8.9 0 8.9-8.8c0-8.9-7.9-15.3-22.1-15.3l-6.6.2zm-12.7 4.5a3.8 3.8 0 1 1 0 7.6 3.8 3.8 0 0 1 0-7.6z"/><path fill="#FFD343" d="M55 108c14.8 0 13.8-6.4 13.8-6.4l-.1-6.6c0 0 1-12.1-13.7-12.1-14.8 0-19.8 1-19.8 1s-8.9 0-8.9 8.8c0 8.9 7.9 15.3 22.1 15.3l6.6-.2zm12.7-4.5a3.8 3.8 0 1 1 0-7.6 3.8 3.8 0 0 1 0 7.6z"/><path fill="#3776AB" d="M41.2 25.1c-13.7 0-24.8 9.9-24.8 23.6 0 13.7 9.8 24.8 23.6 24.8l6.1-.1v-9.5c0-14.8 12.1-13.7 12.1-13.7h9.5v-6.6c0-14.8-11.4-18.5-22.1-18.5h-4.4z"/><path fill="#FFD343" d="M68.8 84.9c13.7 0 24.8-9.9 24.8-23.6 0-13.7-9.8-24.8-23.6-24.8l-6.1.1v9.5c0 14.8-12.1 13.7-12.1 13.7h-9.5v6.6c0 14.8 11.4 18.5 22.1 18.5h4.4z"/></svg>`,
+            js: `<svg viewBox="0 0 100 100" class="message-sticker"><rect width="100" height="100" fill="#F7DF1E"/><path d="M78 80c-2.4 4.5-6.8 7-14.3 7-8.3 0-12.8-4.2-13.6-11.5h8.5c.5 3.3 2.5 5 5.5 5 2.8 0 4.6-1.3 4.6-3.8V35h9.3v41.3c0 1.5-.2 2.7-.5 3.7zm-22.6-7c-1.5 8-8 14-18.5 14-11 0-17.5-6-18.5-15.5h8.8c.8 4.8 4 7.8 9.6 7.8 4.7 0 8.3-2.5 8.3-7.5s-3-6.5-9.3-9.2c-8-3.4-14.3-7.4-14.3-16.2 0-8.8 6.8-14.6 16.2-14.6 9 0 15 4.5 16.3 12.2h-8.5c-1-4.2-3.8-6.3-7.8-6.3-4.3 0-7 2.2-7 5.7 0 3.3 2.2 5 7.6 7.3 8.3 3.6 15.3 7 15.3 16.3 0 2.2-.4 4.2-1 6.2z" fill="#000000"/></svg>`,
+            git: `<svg viewBox="0 0 100 100" class="message-sticker"><path fill="#F05032" d="M92 46.5L53.5 8c-2-2-5-2-7 0L8 46.5c-2 2-2 5 0 7L46.5 92c2 2 5 2 7 0L92 53.5c2-2 2-5 0-7z"/><circle cx="50" cy="35" r="7" fill="#FFF"/><circle cx="50" cy="65" r="7" fill="#FFF"/><circle cx="65" cy="50" r="7" fill="#FFF"/><path d="M50 42v16M50 50h8" stroke="#FFF" stroke-width="4"/></svg>`,
+            coffee: `<svg viewBox="0 0 100 100" class="message-sticker"><path fill="#6F4E37" d="M20 40v30c0 11 9 20 20 20h20c11 0 20-9 20-20V40H20zm50 20c0 5-4 9-9 9H39c-5 0-9-4-9-9s4-9 9-9h22c5 0 9 4 9 9z"/><path fill="#FFF" opacity="0.6" d="M35 15c0 0 3 5-3 10s3 10-3 10m20-20c0 0 3 5-3 10s3 10-3 10m20-20c0 0 3 5-3 10s3 10-3 10" stroke="#FFF" stroke-width="4" stroke-linecap="round" fill="none"/></svg>`,
+            bug: `<svg viewBox="0 0 100 100" class="message-sticker"><circle cx="50" cy="50" r="25" fill="#FF4B4B"/><circle cx="50" cy="30" r="15" fill="#222"/><path d="M50 50v25m-15-20H20m45 0h15M30 40L15 30m55 10l15-10M30 65l-15 10m55-10l15 10" stroke="#222" stroke-width="4"/></svg>`,
+            rocket: `<svg viewBox="0 0 100 100" class="message-sticker"><path fill="#E9EDEF" d="M50 15c0 0 15 15 15 35v25H35V50c0-20 15-35 15-35z"/><path fill="#FF4B4B" d="M35 60l-10 15v5h10V60zm30 0l10 15v5H65V60z"/><circle cx="50" cy="40" r="6" fill="#00A884"/><path fill="#FFB703" d="M45 80l5 15 5-15-10 0z"/></svg>`,
+            fire: `<svg viewBox="0 0 100 100" class="message-sticker"><path fill="#FF4B4B" d="M50 10c0 0 35 30 35 55a35 35 0 0 1-70 0c0-25 35-55 35-55z"/><path fill="#FFB703" d="M50 35c0 0 20 20 20 35a20 20 0 0 1-40 0c0-15 20-35 20-35z"/></svg>`,
+            bitcoin: `<svg viewBox="0 0 100 100" class="message-sticker"><circle cx="50" cy="50" r="45" fill="#FFB703"/><text x="50%" y="62%" font-size="45" font-weight="bold" font-family="sans-serif" text-anchor="middle" fill="#FFF">฿</text></svg>`
+        };
+
+        // State variables
+        let activeChatType = null; // 'room' or 'conn'
+        let activeChatId = null;
+        let activeChatUrl = '';
+        let pollInterval = null;
+        let currentTheme = 'dark';
+
+        // Load rooms and connections lists immediately on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchRooms();
+            fetchConnections();
+            
+            // Check stored theme preference
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            setTheme(savedTheme);
+        });
+
+        // Toggle Dark/Light Mode Theme
+        function toggleTheme() {
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+        }
+
+        function setTheme(theme) {
+            currentTheme = theme;
+            localStorage.setItem('theme', theme);
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            
+            if (theme === 'dark') {
+                body.classList.add('dark');
+                icon.className = 'fa-solid fa-sun';
+                icon.style.color = '#ffb703';
+            } else {
+                body.classList.remove('dark');
+                icon.className = 'fa-solid fa-moon';
+                icon.style.color = '#54656f';
+            }
+        }
+
+        // Fetch Group Rooms from Django /viewroom
+        function fetchRooms() {
+            fetch('/viewroom')
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const rows = doc.querySelectorAll('table tr');
+                    const container = document.getElementById('rooms-list');
+                    
+                    if (rows.length <= 1) {
+                        container.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-secondary); font-size: 0.85rem;">You are not in any rooms yet.</div>';
+                        return;
+                    }
+                    
+                    let roomsHtml = '';
+                    // Skip header row
+                    for (let i = 1; i < rows.length; i++) {
+                        const cells = rows[i].querySelectorAll('td');
+                        if (cells.length >= 7) {
+                            const name = cells[0].textContent.trim();
+                            const desc = cells[1].textContent.trim();
+                            const creator = cells[2].textContent.trim();
+                            const chatLink = cells[3].querySelector('a').getAttribute('href');
+                            const roomId = chatLink.split('/').pop();
+                            
+                            roomsHtml += `
+                                <div class="chat-item" id="room-${roomId}" onclick="loadChat('room', '${roomId}', '/gotocm/${roomId}')">
+                                    <div class="chat-item-avatar">${name.substring(0, 2).toUpperCase()}</div>
+                                    <div class="chat-item-details">
+                                        <div class="chat-item-name">${name}</div>
+                                        <div class="chat-item-preview">${desc}</div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+                    container.innerHTML = roomsHtml;
+                    highlightActiveChat();
+                })
+                .catch(err => {
+                    document.getElementById('rooms-list').innerHTML = '<div style="padding: 16px; text-align: center; color: #ff4b4b; font-size: 0.85rem;">Failed to load rooms.</div>';
+                });
+        }
+
+        // Fetch Private Connections from Django /viewconn
+        function fetchConnections() {
+            fetch('/viewconn')
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const rows = doc.querySelectorAll('table tr');
+                    const container = document.getElementById('connections-list');
+                    
+                    if (rows.length <= 1) {
+                        container.innerHTML = '<div style="padding: 16px; text-align: center; color: var(--text-secondary); font-size: 0.85rem;">No active connections.</div>';
+                        return;
+                    }
+                    
+                    let connsHtml = '';
+                    // Skip header row
+                    for (let i = 1; i < rows.length; i++) {
+                        const cells = rows[i].querySelectorAll('td');
+                        if (cells.length >= 2) {
+                            const name = cells[0].textContent.trim();
+                            const type = cells[1].textContent.trim();
+                            
+                            // To open instant private chat, we need profile ID.
+                            // In legacy Django, clicking connection goes to views.gotoconn (which is redirect/empty).
+                            // But in userprofile/gotoroom we see we can get instantchat with user profile link.
+                            // To map profile ID correctly, let's find the href links or fetch user profile link if available.
+                            // We can use a trick: parse link from View Connections or from other items, or simply query connection details.
+                            // Wait, connections table cells[0] may contain user profile link?
+                            // Let's check viewconnections.html: <td>{{r.userid.pid.name}}</td>.
+                            // It doesn't have a link. BUT userid is profile object, which has an id.
+                            // Let's see: how did connection link open?
+                            // Let's check `cr/urls.py`: `path('gotoconn/<int:id>', views.gotoconn, name='gotoconn')`
+                            // So let's look at `viewconnections.html` again. Wait! In viewconnections.html, it didn't have a link.
+                            // Let's modify connection rendering: we can grab their user ID or look it up.
+                            // Wait, can we fetch user details from /viewusers? Let's check!
+                            // If we click a connection, how do we open the private chat?
+                            // In legacy chatroom, the user home page allows connections. To chat with someone, you clicked their name in `gotoroom.html` (which links to `insta/<id>`).
+                            // If we want connection items in connections-list to open chat, we need their Profile ID.
+                            // Since connection table doesn't list Profile ID directly in HTML, let's check if the cells contain it or if we can extract it.
+                            // Wait, does connection objects in Django have an ID?
+                            // Let's fetch connections. In views.py: `connections.objects.filter(crid=request.session['lid'])`.
+                            // It gets connections. We can update `viewconnections.html` to include a beautiful link so our fetch parses it!
+                            // YES! We can edit `viewconnections.html` first to output:
+                            // `<td><a href="/insta/{{r.userid.id}}">{{r.userid.pid.name}}</a></td>`
+                            // This is incredibly clean! Once we edit `viewconnections.html` to output this link, our JS can parse it instantly!
+                            
+                            // Let's check if there's a link. For now, we will fallback to a default parsing when we edit viewconnections.html.
+                            const linkEl = cells[0].querySelector('a');
+                            const profId = linkEl ? linkEl.getAttribute('href').split('/').pop() : '';
+                            
+                            if (profId) {
+                                connsHtml += `
+                                    <div class="chat-item" id="conn-${profId}" onclick="loadChat('conn', '${profId}', '/insta/${profId}')">
+                                        <div class="chat-item-avatar" style="background: var(--text-secondary)">${name.substring(0, 2).toUpperCase()}</div>
+                                        <div class="chat-item-details">
+                                            <div class="chat-item-name">${name}</div>
+                                            <div class="chat-item-preview">${type}</div>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        }
+                    }
+                    container.innerHTML = connsHtml || '<div style="padding: 16px; text-align: center; color: var(--text-secondary); font-size: 0.85rem;">No active direct chats.</div>';
+                    highlightActiveChat();
+                })
+                .catch(err => {
+                    document.getElementById('connections-list').innerHTML = '<div style="padding: 16px; text-align: center; color: #ff4b4b; font-size: 0.85rem;">Failed to load connections.</div>';
+                });
+        }
+
+        // Highlight Active Chat item in sidebar
+        function highlightActiveChat() {
+            document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
+            if (activeChatType && activeChatId) {
+                const el = document.getElementById(`${activeChatType}-${activeChatId}`);
+                if (el) el.classList.add('active');
+            }
+        }
+
+        // Load Active Chat thread into Right Pane
+        function loadChat(type, id, url) {
+            activeChatType = type;
+            activeChatId = id;
+            activeChatUrl = url;
+            
+            highlightActiveChat();
+            
+            // Start loading in Right Pane
+            const chatPanel = document.getElementById('chat-panel');
+            chatPanel.innerHTML = `
+                <div style="flex: 1; display: flex; justify-content: center; align-items: center; color: var(--text-secondary);">
+                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2rem;"></i>
+                </div>
+            `;
+            
+            // Clear any active polling interval
+            if (pollInterval) clearInterval(pollInterval);
+            
+            fetchChatContent(true); // Load content and autoscroll
+            
+            // Set up polling interval to refresh messages every 3 seconds
+            pollInterval = setInterval(() => {
+                fetchChatContent(false);
+            }, 3000);
+        }
+
+        // Fetch message thread contents via AJAX
+        function fetchChatContent(shouldScroll = false) {
+            if (!activeChatUrl) return;
+            
+            fetch(activeChatUrl)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    // Extract room title / recipient info
+                    const title = doc.querySelector('h1').textContent.trim();
+                    const form = doc.querySelector('form');
+                    const csrfToken = form.querySelector('input[name="csrfmiddlewaretoken"]').value;
+                    const hiddenId = form.querySelector('input[name="idd"]').value;
+                    const formAction = form.getAttribute('action');
+                    
+                    // Extract messages
+                    const rows = doc.querySelectorAll('table tr');
+                    let messagesHtml = '';
+                    
+                    rows.forEach(row => {
+                        const cell = row.querySelector('td');
+                        if (cell) {
+                            let text = cell.innerHTML.trim();
+                            let isOutgoing = false;
+                            let senderName = '';
+                            let senderId = '';
+                            
+                            // Parse incoming vs outgoing
+                            if (activeChatType === 'room') {
+                                // Group room chat parsing
+                                const alignLeft = row.getAttribute('align') === 'left';
+                                if (alignLeft) {
+                                    // Incoming message from another user
+                                    const link = cell.querySelector('a');
+                                    if (link) {
+                                        senderName = link.textContent.replace(':', '').trim();
+                                        senderId = link.getAttribute('href').split('/').pop();
+                                        // Remove the link element from text parsing
+                                        link.remove();
+                                        text = cell.innerHTML.replace(':', '').trim();
+                                    }
+                                } else {
+                                    isOutgoing = true;
+                                }
+                            } else {
+                                // Private direct chat parsing
+                                // Format is "Name: message text"
+                                const colonIndex = text.indexOf(':');
+                                if (colonIndex !== -1) {
+                                    const parsedSender = text.substring(0, colonIndex).trim();
+                                    text = text.substring(colonIndex + 1).trim();
+                                    
+                                    // If sender name doesn't match recipient, it's outgoing
+                                    const recipientName = title.split(' ').pop(); // Just a quick heuristic
+                                    // Better yet: we compare string names or let it default
+                                    isOutgoing = (parsedSender !== title && parsedSender !== 'Private');
+                                }
+                            }
+                            
+                            // Check if message is a custom sticker
+                            let messageContent = text;
+                            const stickerMatch = text.match(/^\[Sticker:\s*(\w+)\]$/i);
+                            if (stickerMatch) {
+                                const stickerName = stickerMatch[1].toLowerCase();
+                                if (STICKERS[stickerName]) {
+                                    messageContent = STICKERS[stickerName];
+                                }
+                            }
+                            
+                            messagesHtml += `
+                                <div class="message-row ${isOutgoing ? 'outgoing' : 'incoming'}">
+                                    <div class="message-bubble">
+                                        ${!isOutgoing && senderName ? `<a href="#" class="message-sender" onclick="loadChat('conn', '${senderId}', '/insta/${senderId}')">${senderName}</a>` : ''}
+                                        <div class="message-text">${messageContent}</div>
+                                        <span class="message-time">10:42 AM</span>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+                    
+                    // Render the Active Chat Pane
+                    const chatPanel = document.getElementById('chat-panel');
+                    const messagesScrollPos = chatPanel.querySelector('.messages-container') ? chatPanel.querySelector('.messages-container').scrollTop : 0;
+                    const isNearBottom = chatPanel.querySelector('.messages-container') ? 
+                        (chatPanel.querySelector('.messages-container').scrollHeight - chatPanel.querySelector('.messages-container').scrollTop - chatPanel.querySelector('.messages-container').clientHeight < 100) : true;
+                    
+                    chatPanel.innerHTML = `
+                        <!-- Chat Header -->
+                        <div class="chat-header">
+                            <div class="chat-header-info">
+                                <div class="chat-header-avatar">
+                                    ${activeChatType === 'room' ? title.substring(0, 2).toUpperCase() : '👤'}
+                                </div>
+                                <div>
+                                    <div class="chat-header-name">${title}</div>
+                                    <div class="chat-header-desc">${activeChatType === 'room' ? 'Group Chat' : 'Direct Message'}</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 15px; align-items: center;">
+                                ${activeChatType === 'room' ? `
+                                    <button class="action-icon" onclick="openModal('Add Room Members', '/gotoam/${activeChatId}')" title="Add Members"><i class="fa-solid fa-user-plus"></i></button>
+                                    <button class="action-icon" onclick="openModal('Room Members', '/gotorm/${activeChatId}')" title="View Members"><i class="fa-solid fa-users"></i></button>
+                                ` : ''}
+                                <a href="https://buy.stripe.com/test_fZe0217Nl5D57KM000" target="_blank" class="btn-primary" style="width: auto; padding: 6px 12px; font-size: 0.8rem; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+                                    <i class="fa-solid fa-heart"></i> Tip Room
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Messages List -->
+                        <div class="messages-container" id="messages-list-scroll">
+                            ${messagesHtml || '<div style="padding: 40px; text-align: center; color: var(--text-secondary);">No messages in this chat yet. Say Hello!</div>'}
+                        </div>
+                        
+                        <!-- Emoji / Sticker Picker Panel -->
+                        <div class="picker-container" id="picker-panel">
+                            <div class="picker-tabs">
+                                <div class="picker-tab active" id="tab-emoji" onclick="setPickerTab('emoji')">Emojis</div>
+                                <div class="picker-tab" id="tab-sticker" onclick="setPickerTab('sticker')">Tech Stickers</div>
+                            </div>
+                            <div class="picker-content">
+                                <div class="emoji-grid" id="emoji-picker-content">
+                                    <span class="emoji-item" onclick="insertEmoji('😀')">😀</span>
+                                    <span class="emoji-item" onclick="insertEmoji('😂')">😂</span>
+                                    <span class="emoji-item" onclick="insertEmoji('😊')">😊</span>
+                                    <span class="emoji-item" onclick="insertEmoji('😍')">😍</span>
+                                    <span class="emoji-item" onclick="insertEmoji('👍')">👍</span>
+                                    <span class="emoji-item" onclick="insertEmoji('🎉')">🎉</span>
+                                    <span class="emoji-item" onclick="insertEmoji('🔥')">🔥</span>
+                                    <span class="emoji-item" onclick="insertEmoji('💻')">💻</span>
+                                    <span class="emoji-item" onclick="insertEmoji('🚀')">🚀</span>
+                                    <span class="emoji-item" onclick="insertEmoji('☕')">☕</span>
+                                    <span class="emoji-item" onclick="insertEmoji('🐛')">🐛</span>
+                                    <span class="emoji-item" onclick="insertEmoji('💡')">💡</span>
+                                    <span class="emoji-item" onclick="insertEmoji('👀')">👀</span>
+                                    <span class="emoji-item" onclick="insertEmoji('💯')">💯</span>
+                                </div>
+                                <div class="sticker-grid" id="sticker-picker-content" style="display: none;">
+                                    <div class="sticker-item" onclick="sendSticker('${hiddenId}', '${formAction}', 'python')">${STICKERS.python}</div>
+                                    <div class="sticker-item" onclick="sendSticker('${hiddenId}', '${formAction}', 'js')">${STICKERS.js}</div>
+                                    <div class="sticker-item" onclick="sendSticker('${hiddenId}', '${formAction}', 'git')">${STICKERS.git}</div>
+                                    <div class="sticker-item" onclick="sendSticker('${hiddenId}', '${formAction}', 'coffee')">${STICKERS.coffee}</div>
+                                    <div class="sticker-item" onclick="sendSticker('${hiddenId}', '${formAction}', 'bug')">${STICKERS.bug}</div>
+                                    <div class="sticker-item" onclick="sendSticker('${hiddenId}', '${formAction}', 'rocket')">${STICKERS.rocket}</div>
+                                    <div class="sticker-item" onclick="sendSticker('${hiddenId}', '${formAction}', 'fire')">${STICKERS.fire}</div>
+                                    <div class="sticker-item" onclick="sendSticker('${hiddenId}', '${formAction}', 'bitcoin')">${STICKERS.bitcoin}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Input Bar -->
+                        <div class="chat-input-bar">
+                            <button class="input-action-btn" onclick="togglePicker()" title="Emojis & Stickers">
+                                <i class="fa-regular fa-face-smile"></i>
+                            </button>
+                            <form class="chat-input-form" onsubmit="submitMessage(event, '${hiddenId}', '${formAction}')">
+                                <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+                                <input type="hidden" name="idd" value="${hiddenId}">
+                                <input type="text" class="chat-textarea" id="chat-message-input" autocomplete="off" name="chat" placeholder="Type a message" required>
+                                <button class="send-btn" type="submit"><i class="fa-solid fa-paper-plane" style="font-size: 1rem;"></i></button>
+                            </form>
+                        </div>
+                    `;
+                    
+                    // Auto scroll handling
+                    const scrollContainer = document.getElementById('messages-list-scroll');
+                    if (shouldScroll || isNearBottom) {
+                        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+                    } else {
+                        scrollContainer.scrollTop = messagesScrollPos;
+                    }
+                })
+                .catch(err => {
+                    console.error("Failed to load chat thread content", err);
+                });
+        }
+
+        // Send a normal text message via AJAX
+        function submitMessage(e, hiddenId, actionUrl) {
+            e.preventDefault();
+            const input = document.getElementById('chat-message-input');
+            const chatText = input.value.trim();
+            if (!chatText) return;
+            
+            const form = e.target;
+            const csrfToken = form.querySelector('input[name="csrfmiddlewaretoken"]').value;
+            
+            const formData = new FormData();
+            formData.append('csrfmiddlewaretoken', csrfToken);
+            formData.append('idd', hiddenId);
+            formData.append('chat', chatText);
+            
+            // Clear input field immediately for local speed feeling
+            input.value = '';
+            
+            fetch(actionUrl, {
+                method: 'POST',
+                body: formData
+            })
+            .then(() => {
+                fetchChatContent(true); // Force refresh and scroll
+            })
+            .catch(err => console.error("Error sending message", err));
+        }
+
+        // Send an SVG sticker as a special text payload
+        function sendSticker(hiddenId, actionUrl, stickerName) {
+            const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+            
+            const formData = new FormData();
+            formData.append('csrfmiddlewaretoken', csrfToken);
+            formData.append('idd', hiddenId);
+            formData.append('chat', `[Sticker: ${stickerName}]`);
+            
+            // Close picker panel
+            document.getElementById('picker-panel').style.display = 'none';
+            
+            fetch(actionUrl, {
+                method: 'POST',
+                body: formData
+            })
+            .then(() => {
+                fetchChatContent(true); // Force refresh and scroll
+            })
+            .catch(err => console.error("Error sending sticker", err));
+        }
+
+        // --- PICKER PANELS UTILITIES ---
+        function togglePicker() {
+            const picker = document.getElementById('picker-panel');
+            if (picker.style.display === 'flex') {
+                picker.style.display = 'none';
+            } else {
+                picker.style.display = 'flex';
+            }
+        }
+
+        function setPickerTab(tabName) {
+            const tabEmoji = document.getElementById('tab-emoji');
+            const tabSticker = document.getElementById('tab-sticker');
+            const contentEmoji = document.getElementById('emoji-picker-content');
+            const contentSticker = document.getElementById('sticker-picker-content');
+            
+            if (tabName === 'emoji') {
+                tabEmoji.classList.add('active');
+                tabSticker.classList.remove('active');
+                contentEmoji.style.display = 'grid';
+                contentSticker.style.display = 'none';
+            } else {
+                tabEmoji.classList.remove('active');
+                tabSticker.classList.add('active');
+                contentEmoji.style.display = 'none';
+                contentSticker.style.display = 'grid';
+            }
+        }
+
+        function insertEmoji(emoji) {
+            const input = document.getElementById('chat-message-input');
+            input.value += emoji;
+            input.focus();
+            document.getElementById('picker-panel').style.display = 'none';
+        }
+
+        // --- SEARCH FILTERING ---
+        function filterChats() {
+            const query = document.getElementById('search-bar').value.toLowerCase();
+            document.querySelectorAll('.chat-item').forEach(item => {
+                const name = item.querySelector('.chat-item-name').textContent.toLowerCase();
+                if (name.includes(query)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // --- GLASSMORPHIC IFRAME MODALS UTILITIES ---
+        function openModal(title, url) {
+            document.getElementById('modalTitle').textContent = title;
+            const iframe = document.getElementById('modalIframe');
+            iframe.src = url;
+            
+            document.getElementById('actionModal').classList.add('active');
+            
+            // Listen to iframe load redirects. If the iframe redirects back to userhome
+            // (indicating successful action submission), we automatically reload lists & close modal.
+            iframe.onload = function() {
+                try {
+                    const iframeUrl = iframe.contentWindow.location.pathname;
+                    if (iframeUrl.includes('userhome')) {
+                        closeModal();
+                        fetchRooms();
+                        fetchConnections();
+                    }
+                } catch (e) {
+                    // Ignore cross-origin warnings if any
+                }
+            };
+        }
+
+        function closeModal() {
+            document.getElementById('actionModal').classList.remove('active');
+            document.getElementById('modalIframe').src = '';
+            // Refresh lists on any close to ensure state synchronization
+            fetchRooms();
+            fetchConnections();
+        }
+    </script>
 </body>
 </html>

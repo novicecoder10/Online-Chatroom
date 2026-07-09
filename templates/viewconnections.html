@@ -13,7 +13,7 @@
         </tr>
         {% for r in  res %}
         <tr>
-            <td>{{r.userid.pid.name}}</td>
+            <td><a href="{% url 'insta' id=r.userid.id %}">{{r.userid.pid.name}}</a></td>
             <td>{{r.type}}</td>
         </tr>
         {% endfor %}

@@ -1,69 +1,109 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User Registration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatterBox - Register</title>
+    <link rel="stylesheet" href="{% static 'css/whatsapp.css' %}">
 </head>
-<body>
-  <form name="reg" method="post" action="reg">
-    {% csrf_token %}
-      <center><h1>User Registration</h1></center><br><br>
-      Name <input type="text" name="name" required pattern="[A-Z a-z]{2,24}"><br><br>
-      Age <input type="text" name="age" required pattern="[0-9]{2}"><br><br>
-      Address <textarea name="address" placeholder="Address" required></textarea><br><br>
-      Gender<br>
-      Male <input type="radio" name="gender" value="Male" checked> Female <input type="radio" name="gender" value="Female"><br><br>
-      email <input type="email" name="email" required><br><br>
-      Phone <input type="number" name="phone" required pattern="[0-9]{10}"><br><br>
-      Username <input type="text" name="uname" id="usna" required><br><br> <p id="message"></p>
-      Password <input type="text" name="pasd" id="passwd" required><br><br> <p id="passw"></p>
-      <input type="submit"> <input type="reset">
-  </form>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<body class="dark">
+    <div class="login-container" style="max-width: 500px; padding: 30px;">
+        <div class="login-logo" style="font-size: 2.5rem; margin-bottom: 5px;">💬</div>
+        <h1 class="login-title" style="margin-bottom: 20px; font-size: 1.6rem;">Join ChatterBox</h1>
+        
+        <form name="reg" method="post" action="{% url 'reg' %}">
+            {% csrf_token %}
+            
+            <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                    <label class="form-label" for="name">Name</label>
+                    <input class="form-input" type="text" id="name" name="name" required pattern="[A-Z a-z]{2,24}" placeholder="Your Name">
+                </div>
+                <div class="form-group" style="width: 100px;">
+                    <label class="form-label" for="age">Age</label>
+                    <input class="form-input" type="text" id="age" name="age" required pattern="[0-9]{2}" placeholder="Age">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="address">Address</label>
+                <textarea class="form-input" id="address" name="address" required placeholder="Enter Address" style="height: 60px; resize: none;"></textarea>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                    <label class="form-label" for="email">Email</label>
+                    <input class="form-input" type="email" id="email" name="email" required placeholder="email@example.com">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label class="form-label" for="phone">Phone</label>
+                    <input class="form-input" type="number" id="phone" name="phone" required pattern="[0-9]{10}" placeholder="Phone number">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Gender</label>
+                <div style="display: flex; gap: 20px; align-items: center; padding: 10px 0;">
+                    <label style="color: var(--text-primary); cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <input type="radio" name="gender" value="Male" checked style="accent-color: var(--accent);"> Male
+                    </label>
+                    <label style="color: var(--text-primary); cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <input type="radio" name="gender" value="Female" style="accent-color: var(--accent);"> Female
+                    </label>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group" style="flex: 1;">
+                    <label class="form-label" for="usna">Username</label>
+                    <input class="form-input" type="text" id="usna" name="uname" required placeholder="Username">
+                    <p id="message" style="color: #ff4b4b; font-size: 0.8rem; margin-top: 4px;"></p>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label class="form-label" for="passwd">Password</label>
+                    <input class="form-input" type="password" id="passwd" name="pasd" required placeholder="Password">
+                    <p id="passw" style="color: var(--accent); font-size: 0.8rem; margin-top: 4px;"></p>
+                </div>
+            </div>
+            
+            <button class="btn-primary" type="submit" style="margin-top: 15px;">Create Account</button>
+        </form>
+        
+        <div class="login-footer" style="margin-top: 15px;">
+            <p>Already have an account? <a href="{% url 'log' %}">Log In</a></p>
+        </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script type="text/javascript">
         $("#usna").keyup(function(){
-            var usnavi;
-
-            usnavi = $(this).val();
-
-            $.ajax(
-            {
+            var usnavi = $(this).val();
+            $.ajax({
                 type: "GET",
                 url: "/usnchk",
-                data: {
-                    usid: usnavi,
-                       },
-                success: function( data )
-                {
-                    if(data.is_taken){
-                        $( '#message' ).text(data.error_message);
-                        }
-                    else
-                    {
-                        $( '#message' ).text("");
+                data: { usid: usnavi },
+                success: function(data) {
+                    if (data.is_taken) {
+                        $('#message').text(data.error_message);
+                    } else {
+                        $('#message').text("");
                     }
                 }
-            })
             });
+        });
 
         $('#passwd').keyup(function(){
-            var paswd;
-
-            paswd = $(this).val();
-
-            $.ajax(
-            {
+            var paswd = $(this).val();
+            $.ajax({
                 type: "GET",
                 url: "/pwdchk",
-                data: {
-                    pwd: paswd,
-                },
-                success: function( data )
-                {
-                    $( '#passw' ).text(data);
+                data: { pwd: paswd },
+                success: function(data) {
+                    $('#passw').text(data);
                 }
-            })
             });
+        });
     </script>
 </body>
 </html>
