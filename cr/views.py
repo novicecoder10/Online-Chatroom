@@ -83,6 +83,15 @@ def reg(request):
     obus.lid = oblog
     obus.save()
     
+    # Create default profile for the user
+    prof = profile()
+    prof.user = name
+    prof.bio = "Hey there! I am using ChatterBox."
+    prof.status = "Online"
+    prof.about = "Available"
+    prof.pid = obus
+    prof.save()
+    
     # Auto-login the user immediately after registration
     user = auth.authenticate(username='admin', password='admin')
     if user is not None:
