@@ -85,7 +85,6 @@ def reg(request):
     return render(request, "userhome.html")
 
 
-@login_required(login_url='/')
 def usnchk(request):
     user = request.GET['usid']
     data = {
@@ -96,7 +95,6 @@ def usnchk(request):
     return JsonResponse(data)
 
 
-@login_required(login_url='/')
 def pwdchk(request):
     pawd = request.GET['pwd']
     if len(pawd) == 0:
